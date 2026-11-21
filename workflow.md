@@ -39,3 +39,21 @@ For the third prompt (*Which values in the column country are not countries?*), 
 Copilot in VS Code showed us no display of how full the context window was; the quota meter showed *Credits 0% used* after the three prompts. The second prompt says do not read the whole data file, because the file has 14 MB, which is about 7.9 million tokens (lecture slides Agentic Coding, slide 12, tokenizer o200k_base; other models count differently). Header and first five rows are only 694 tokens. The context window of the model in my VS Code (KI:connect Mistral Small 4) is 144K tokens. For Copilot Fusion we saw no value. According to the lecture, numbers also split badly into tokens (2024 becomes 202 + 4); this is consistent with the errors in the agent’s list, but we did not test it. The agent read only the small codebook and two columns.  
 
 After all three prompts, `git status` showed no changes: the agent changed nothing.
+
+## AGENTS.md
+
+We wrote `AGENTS.md` ourselves (about 36 lines: Project, Setup and commands, Data, Rules) and then asked Copilot Fusion for its own draft, `AGENTS.draft.md`, without showing it our file.
+
+**What the agent's draft had that ours did not.** The codebook as the authority for column meanings and units; the rule to check factual claims independently; assertions instead of printed-only checks; the smallest complete change; recording the source and version of derived data; updating `requirements.txt` when a package is added.
+
+**What our file had that the draft did not.** The pinned commit, the licence and the project question; the concrete facts we found in Explore (254 entities, 36 without `iso_code`, the `(GCP)` variants, exact names such as `Czechia`, the last year of each column); the pipeline commands; and stricter rules: `data/raw/` is read-only and must not be worked around, tests must not be changed to make them pass, and the agent shows a plan before it writes code. The draft only says not to alter raw data *silently*, which leaves open whether it may do so openly.
+
+**What the agent got wrong or assumed.**
+- It assumed macOS or Linux (`python3 -m venv`, `.venv/bin/python`). We work on Windows, where the path is `.venv/Scripts/activate`.
+- It wrote that the repository has no source code and no entry point. This is true today, but it will be wrong as soon as `src/` exists.
+- It says not to commit generated analysis results. Our pipeline writes `data/processed/co2_eu.csv` and `figures/`; we still have to decide whether to commit them.
+- It spends about 20 lines on the repository layout, which the agent can see with `ls`. The draft has more than 60 lines, we asked for about 40.
+
+**A caveat about the draft.** It describes `workflow.md` and mentions Kosovo. The agent did read our own notes in the repository, so its Kosovo remark is not independent knowledge.
+
+**What was missing in our file.** A rule that the agent must not read the whole data file. The lecture gives about 7.9 million tokens for it, and this was the point of Explore. Draft: *Never read `data/raw/owid-co2-data.csv` in full. Use `head`, `cut` or pandas with `usecols`.* We added this line to `AGENTS.md`.
