@@ -35,4 +35,4 @@ Which EU country has reduced its CO₂ emissions per person the most since 2000?
 - No silent filling of missing values: report them and ask.
 - Never invent URLs, column names or numbers; ask instead.
 - Show a plan before you write code. One step per session.
-- Never read data/raw/owid-co2-data.csv in full (about 7.9 million tokens). Use head, cut or pandas with usecols.
+- Never read `data/raw/owid-co2-data.csv` in full (about 7.9 million tokens). Use `head`, `cut` or pandas with `usecols`.
