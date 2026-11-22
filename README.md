@@ -15,6 +15,7 @@ It depends on what "the most" means. Both readings use `co2_per_capita` of the 2
 | Ireland | 11.90 t | 6.34 t | 5.56 t|
 
 **In percent of the value in 2000**
+
 | Country | 2000 | 2024 | Cut |
 |---|---|---|---|
 | Denmark | 10.17 t | 4.75 t | 53.33 % |
@@ -27,14 +28,15 @@ Three countries emitted more per person in 2024 than in 2000: Lithuania, Latvia 
 
 **Which answer we would present:** 
 
-Both readings, side by side. The question "reduced the most" can mean two things, and each gives a different winner: in tonnes per person, Luxembourg cut the most (9.49 t), but it also started from the highest level of all EU countries, in percent, Denmark cut the most (53.33%). We did not want to choose the reading after seeing which results sounds better, so we show both and say what "most" means in each. Finland is second in both rankings, so if only one country may be named, Finland is the answer that does not depend on the reading. 
+Both readings, side by side. The question "reduced the most" can mean two things, and each gives a different winner: in tonnes per person, Luxembourg cut the most (9.49 t), but it also started from the highest level of all EU countries; in percent, Denmark cut the most (53.33%). We did not want to choose the reading after seeing which result sounds better, so we show both and say what "most" means in each. According to the OECD, Luxembourg's emissions include fuel sold to non-residents (fuel tourism), so its per-person values may be higher than the emissions of its residents alone would suggest; see `workflow.md`, *check 4*. Finland is second in both rankings, so if only one country may be named, Finland could be the answer that does not depend on the reading. 
 
 
 ### How to run it 
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate # macOS / Linux
+# source .venv/Scripts/activate # Windows (Git Bash), use this line instead
 python -m pip install -r requirements.txt
 python src/download.py      # downloads the pinned data into data/raw/
 python src/clean_co2.py     # writes data/processed/co2_eu.csv
@@ -42,13 +44,13 @@ python -m pytest            # 5 tests
 python src/analyse.py       # prints the answer and saves the chart in figures/
 ```
 
-On macOS with python from python.org, the download may fail with *SSL: CERTIFICATE_VERIFY_FAILED*. Run `export SSL_CERT_FILE="$(python -m certifi)"` in the same terminal first.
+On macOS with Python from python.org, the download may fail with *SSL: CERTIFICATE_VERIFY_FAILED*. Run `export SSL_CERT_FILE="$(python -m certifi)"` in the same terminal first.
 
-`data/raw`is not in the repository. `download.py`never overwrites a file that exsits .
+`data/raw` is not in the repository. `download.py` never overwrites a file that exists.
 
 ## Data and credits 
 
--- **Dataset:** *CO₂ and Greenhouse Gas Emissions*, by Our World in Data, https://github.com/owid/co2-data, pinned to commit `382ee6c662b0ece26e111f263b44c029afad7787` (2 June 2026), licensed under Creative Commons BY (CC BY 4.0). Data from third parties keeps the licence of its original authors. 
+- **Dataset:** *CO₂ and Greenhouse Gas Emissions*, by Our World in Data, https://github.com/owid/co2-data, pinned to commit `382ee6c662b0ece26e111f263b44c029afad7787` (2 June 2026), licensed under Creative Commons Attribution 4.0 (CC BY 4.0). Data from third parties keeps the licence of its original authors. 
 - **Original sources of the columns we use**, according to the codebook:
     - `co2` and `co2_per_capita`: Global Carbon Budget (2025), https://globalcarbonbudget.org/
     - `population`: Population based on various sources (2024), https://ourworldindata.org/population-sources
@@ -57,4 +59,4 @@ On macOS with python from python.org, the download may fail with *SSL: CERTIFICA
 
 ## How we worked 
 
-Step by Step, with tests written before the code: see [workflow.md](workflow.md), [AGENTS.md](AGENTS.md) and [AI_USAGE.md](AI_USAGE.md).
+Step by step, with tests written before the code: see [workflow.md](workflow.md), [AGENTS.md](AGENTS.md) and [AI_USAGE.md](AI_USAGE.md).
