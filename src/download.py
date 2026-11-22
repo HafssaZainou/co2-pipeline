@@ -56,6 +56,7 @@ def file_details(path: Path) -> tuple[int, str]:
 
 def main() -> int:
     raw_dir = Path(__file__).resolve().parents[1] / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
     for filename in FILES:
         url = (
