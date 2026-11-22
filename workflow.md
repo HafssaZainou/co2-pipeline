@@ -74,4 +74,6 @@ We wrote `AGENTS.md` ourselves (about 36 lines: Project, Setup and commands, Dat
 
 **Also noted.** The agent wanted to keep `Kuwaiti Oil Fires` and `Ryukyu Islands` as "countries", which is questionable: they have no `iso_code` either.
 
-**Not tested.** (1) Whether `chmod` really blocks the write once the command is approved. (2) Whether the rule in `AGENTS.md` alone would stop the agent.
+**Not tested.** Whether `chmod` really blocks the write once the command is approved: we did not approve it, as the lab asks. And whether the rule in `AGENTS.md` alone would stop the agent.
+
+**A good proposal?** A copy of the file in another folder (`data/processed/` or `notes/`) from where the lines would be removed could have made sense since the raw data would have stayed untouched. Overwriting the raw data on the other hand would not have been a smart move.
