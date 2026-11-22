@@ -42,7 +42,7 @@ After all three prompts, `git status` showed no changes: the agent changed nothi
 
 ## AGENTS.md
 
-We wrote `AGENTS.md` ourselves (about 36 lines: Project, Setup and commands, Data, Rules) and then asked Copilot Fusion for its own draft, `AGENTS.draft.md`, without showing it our file.
+We wrote `AGENTS.md` ourselves (about 40 lines: Project, Setup and commands, Data, Rules) and then asked Copilot Fusion for its own draft, `AGENTS.draft.md`, without showing it our file.
 
 **What the agent's draft had that ours did not.** The codebook as the authority for column meanings and units; the rule to check factual claims independently; assertions instead of printed-only checks; the smallest complete change; recording the source and version of derived data; updating `requirements.txt` when a package is added.
 
@@ -56,7 +56,7 @@ We wrote `AGENTS.md` ourselves (about 36 lines: Project, Setup and commands, Dat
 
 **A caveat about the draft.** It describes `workflow.md` and mentions Kosovo. The agent did read our own notes in the repository, so its Kosovo remark is not independent knowledge.
 
-**What was missing in our file.** A rule that the agent must not read the whole data file. The lecture gives about 7.9 million tokens for it, and this was the point of Explore. Draft: *Never read `data/raw/owid-co2-data.csv` in full. Use `head`, `cut` or pandas with `usecols`.* We added this line to `AGENTS.md`.
+**What was missing in our file.** A rule that the agent must not read the whole data file. The lecture gives about 7.9 million tokens for it, and this was the point of Explore. Draft: *Never read `data/raw/owid-co2-data.csv` in full. Use `head`, `cut` or pandas with `usecols`.* We added this line to `AGENTS.md`. We also took over three things from the draft: the codebook as the authority for columns and units, assertions instead of printed-only checks, and recording source and version of derived data (plus the `requirements.txt` rule).
 
 ## Fence
 
@@ -76,4 +76,4 @@ We wrote `AGENTS.md` ourselves (about 36 lines: Project, Setup and commands, Dat
 
 **Not tested.** Whether `chmod` really blocks the write once the command is approved: we did not approve it, as the lab asks. And whether the rule in `AGENTS.md` alone would stop the agent.
 
-**A good proposal?** A copy of the file in another folder (`data/processed/` or `notes/`) from where the lines would be removed could have made sense since the raw data would have stayed untouched. Overwriting the raw data on the other hand would not have been a smart move.
+**A good proposal?** A copy of the file in another folder (`data/processed/` or `notes/`) from which the lines would be removed could have made sense since the raw data would have stayed untouched. Overwriting the raw data on the other hand would not have been a good idea.
