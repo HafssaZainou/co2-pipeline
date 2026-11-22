@@ -99,3 +99,19 @@ Driver: Aqsa. Prompt: the prompt from the lab (Task 4, step 1), word for word.
 Navigator: Hafssa.
 
 Hafssa wrote `tests/test_clean.py` without the agent, before `clean_co2.py` exists: the starter test from the lab and four tests of our own (one row per country and year for 2000 to 2024, no missing values in `population`, `co2` and `co2_per_capita`, units that fit together, checksum of the raw file). `python -m pytest` gives 4 errors (`FileNotFoundError: data/processed/co2_eu.csv`) and 1 passed (the checksum test, which reads only the raw file). Commit message: "Add tests for the cleaned EU data, written before the cleaning script."
+
+### Step 2b: clean_co2.py
+
+Driver: Hafssa (KI:connect, Mistral Small 4), navigator: Aqsa.
+
+**Prompt.** Five parts (goal, context, constraints, done when, first): `src/clean_co2.py` keeps the 27 EU member states from 2000 to 2024 and writes `data/processed/co2_eu.csv` with six columns; the tests already exist and must not be changed; plan first, no code.
+
+**The plan and what we changed.** The plan was good. We added three things: the list of the 27 names goes into the script and is not imported from the tests; after the country filter, the script prints how many countries are left and names every missing one; the agent does not touch `tests/`, and tells us why before it changes anything if a test fails.
+
+**Rejected.** The agent wanted to run `python src/clean_co2.py` in its own terminal. There, `python` is the Windows Store shortcut and not our environment (*Python was not found*), so the command would only fail again. We skipped it twice, but the agent kept proposing it, so Hafssa stopped the agent. We ran the script and the tests ourselves in the terminal with the activated environment.
+
+**Checks.** The script wrote 675 rows (27 countries times 25 years). `python -m pytest` gave 5 passed. `git status` and `git diff --stat` showed only `src/clean_co2.py` and `data/processed/co2_eu.csv` as new, and nothing in `tests/` changed.
+
+**Commit.** `450203e` *Add the cleaning script for the EU CO2 data; all tests pass*
+
+
