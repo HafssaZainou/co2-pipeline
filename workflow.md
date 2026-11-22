@@ -90,7 +90,7 @@ Driver: Aqsa. Prompt: the prompt from the lab (Task 4, step 1), word for word.
 
 **Implementation.** The agent wrote `src/download.py`, ran it itself, improved it three times, and showed with a self-test in a temporary folder that existing files are not overwritten. We read every command before we approved it and rejected none.
 
-**Checks.** `git status` showed only `src/` as new. `python src/download.py` printed 14377942 bytes and the SHA-256 `7f78e2b218ce4bb8c538bbec04fdc9a7982e8d40bff972e650df603899edd5f6` for `owid-co2-data.csv`, as the lab requires. No download was needed, and `SOURCES.txt` was not created. A real download is not tested yet (Task 5).
+**Checks.** `git status` showed only `src/` as new. `python src/download.py` printed 14377942 bytes and the SHA-256 `7f78e2b218ce4bb8c538bbec04fdc9a7982e8d40bff972e650df603899edd5f6` for `owid-co2-data.csv`, as the lab requires. No download was needed, and `SOURCES.txt` was not created. The real download was tested in Task 5 (Verify, check 2); it showed that the script did not create `data/raw/`.
 
 **Commit.** `f4d5e66`, *Add a download script for the pinned OWID CO2 data that never overwrites raw files*.
 
@@ -126,10 +126,67 @@ Driver: Aqsa (GitHub Copilot in VS Code, Copilot Fusion), navigator: Hafssa.
 
 **Implementation.** The agent first ran a read-only trial script, then wrote `src/analyse.py` and checked that the chart is a valid PNG. We read every command before we approved it and rejected none.
 
-**Result.** 675 rows, 54 after the filter on 2000 and 2024. In tonnes: Luxembourg 19.95 → 10.46 (9.49 t), Finland (5.71 t), Ireland (5.56 t). In percent: Denmark 10.17 → 4.75 (53.33 %), Finland (51.87 %), Malta (48.09 %). We recomputed these from the raw file, with our own commands (see Task 5).
+**Result.** 675 rows, 54 after the filter on 2000 and 2024. In tonnes: Luxembourg 19.95 → 10.46 (9.49 t), Finland (5.71 t), Ireland (5.56 t). In percent: Denmark 10.17 → 4.75 (53.33 %), Finland (51.87 %), Malta (48.09 %). We checked Luxembourg by hand (see Verify, check 3). Claude recomputed the other values from the raw file, see `AI_USAGE.md`.
 
 **Chart.** All 27 countries, axis with unit and a line at zero. Lithuania, Latvia and Croatia increased their emissions per person; they appear as red bars below zero. With an axis starting at zero they would have disappeared.
 
 **Commit.** `cd8c051`, *Add the analysis: biggest CO2 cuts per person 2000-2024, in tonnes and percent, with a chart*.
 
+## Verify
 
+### Check 1: Did the agent touch our tests?
+
+```bash
+git log --oneline -- tests/
+# 6637117 Add tests for the cleaned EU data, written before the cleaning script
+```
+
+Only one commit has ever changed `tests/`: Hafssa's, written before the cleaning script existed. Neither the agent nor anyone else changed the tests afterwards, so `5 passed` for `clean_co2.py` is against the original tests.
+
+### Check 2: Does it run from scratch?
+
+Aqsa cloned the repository a second time, into `co2-check/`, and ran the whole pipeline there, with the virtual environment activated.
+
+- **First run:** `python src/download.py` stopped with *No such file or directory* for `data/raw/owid-co2-data.csv`. The script did not create `data/raw/`. In our own clone the folder existed from our manual download with `curl`, so the bug never showed, and the agent's self-test only covered files that already exist. Fixed with `raw_dir.mkdir(parents=True, exist_ok=True)` in commit `2689624`.
+- **Second run:** the download stopped with *SSL: CERTIFICATE_VERIFY_FAILED*. Python from python.org on macOS had no certificate list (`curl` uses the system's). *Install Certificates.command* failed without admin rights. We solved it without admin rights and without switching off verification: `export SSL_CERT_FILE="$(python -m certifi)"` in the terminal, using the `certifi` package that `requests` brings along.
+- **Third run:** everything ran. `data/raw/SOURCES.txt` had two lines (date, pinned URL, file name). `clean_co2.py` wrote 675 rows, `python -m pytest` gave 5 passed, and `analyse.py` printed the same numbers as in our own clone (Luxembourg 9.49 t, Denmark 53.33 %). Then we deleted `co2-check/`.
+
+### Check 3: Luxembourg by hand
+
+Command (Hafssa): 
+
+```bash
+grep -E "^Luxembourg,(2000|2024)," data/raw/owid-co2-data.csv | cut -d, -f1,2,4,8,17
+# Luxembourg,2000,436142,8.702,19.953
+# Luxembourg,2024,673042,7.040,10.460
+```
+
+| | 2000 | 2024 |
+|---|---|---|
+| CO₂ (million t) | 8.702 | 7.040 |
+| Population | 436,142 | 673,042 |
+| CO₂ per person (t) | 19.953 | 10.460 |
+
+Hafssa divided the CO₂ by the population by hand and got 19.95 and 10.46 t per person. This matches the results of our pipeline. Percentages: population +54.3 %, total emissions −19.1 %, per person −47.6 %. The decline per person is so large because the population grew much more than the emissions fell.
+
+### Check 4: One sceptical question
+
+**What we asked:** Why are the CO2 emissions per person of Luxembourg so high?
+
+**Our agent answered:** It only read `workflow.md`, `clean_co2.py` and `analyse.py`, not the data. Its numbers (19.95 and 10.46 t, 9.49 t decrease, 47.6 %) matched our calculations, probably because it took them from our files. Its ranking did not: it said "4th", but we calculated rank 1 for the absolute reduction. It named five reasons (small population with high GDP, cross-border workers, financial sector, cold climate, little heavy industry) and gave no source for any of them. Hafssa did not allow anything that would change something.
+
+**How Hafssa searched (without guessing):**
+1. First source: [IEA, Luxembourg: emissions](https://www.iea.org/countries/luxembourg/emissions#what-are-the-main-sources-of-co2-emissions-in-luxembourg). It only explains in general what influences per-capita emissions (transport, energy-intensive industry, fossil power). It does not explain Luxembourg, so Hafssa did not use it as proof.
+2. Second source: OECD (2025), *OECD Economic Surveys: Luxembourg 2025*, OECD Publishing, Paris, <https://doi.org/10.1787/803b3ea1-en>, licence CC BY 4.0 (not for third-party material in the report). We used Chapter 3, [Managing the green transition](https://www.oecd.org/en/publications/oecd-economic-surveys-luxembourg-2025_803b3ea1-en/full-report/managing-the-green-transition_8dafc271.html). Hafssa read it on the OECD website and wrote down the figures. Claude then checked them against the PDF of the report (see `AI_USAGE.md`); all of them matched.
+
+**What the OECD report says:**
+- Transport accounts for more than 60 % of Luxembourg's emissions.
+- Fuel is cheaper than in the neighbouring countries because of lower taxes. Almost 75 % of the fuel is sold to non-resident drivers ("fuel tourism"). The OECD takes this figure from its own report of 2020.
+- More than 80 % of the cross-border workers commute by private car. About 50 % of them come from France, 25 % from Belgium and 25 % from Germany.
+- Luxembourg has a very high car density. The average weight of newly registered cars rose by 15 % in 20 years, and medium and large engines are more common than small ones. The report names no car models.
+- Luxembourg imports most of its electricity, so the emissions from producing it are counted elsewhere (about 3 % of total emissions).
+- Fuel burned abroad by cross-border commuters, freight vehicles and fuel tourists is counted entirely in Luxembourg. The OECD says these peculiarities distort the sectors' shares.
+
+**Compared with the agent's reasons:** The report confirms cross-border commuters and the high car density. The agent did not name fuel tourism or the electricity imports. We did not find financial sector dominance, cold climate or little heavy industry in this source. We write "not found in this source", not "wrong", because another source might support them.
+
+**What does that mean for us:** According to the codebook, `co2_per_capita` counts CO₂ from burning fossil fuels and industrial processes (including transport). A separate column, `consumption_co2_per_capita`, exists for consumption-based emissions, so ours is not that. The OECD says Luxembourg's emissions include fuel sold to non-residents. We therefore assume fuel tourism is included in our 19.95 and 10.46 t, but we did not verify this in the data ourselves.
