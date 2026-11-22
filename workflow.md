@@ -77,3 +77,25 @@ We wrote `AGENTS.md` ourselves (about 40 lines: Project, Setup and commands, Dat
 **Not tested.** Whether `chmod` really blocks the write once the command is approved: we did not approve it, as the lab asks. And whether the rule in `AGENTS.md` alone would stop the agent.
 
 **A good proposal?** A copy of the file in another folder (`data/processed/` or `notes/`) from which the lines would be removed could have made sense since the raw data would have stayed untouched. Overwriting the raw data on the other hand would not have been a good idea.
+
+## Build
+
+### Step 1: download.py
+
+Driver: Aqsa. Prompt: the prompt from the lab (Task 4, step 1), word for word.
+
+**The plan.** The agent planned to read `AGENTS.md`, check which files exist, and write `src/download.py`: download only missing files, never overwrite, stop on errors, append to `SOURCES.txt`, print size and SHA-256.
+
+**What we changed in the plan.** The plan knew that the files already exist, but not that `data/raw/` is read-only: an entry in `SOURCES.txt` would have failed. We asked that `SOURCES.txt` is written only after a real download and that the script never changes permissions. We also asked it to use only `AGENTS.md` (it had mentioned `AGENTS.draft.md`) and to name the exact URLs. Because `AGENTS.md` was still missing on Aqsa's computer, the agent asked instead of inventing a URL. The new plan named the URLs with the pinned commit `382ee6c…`.
+
+**Implementation.** The agent wrote `src/download.py`, ran it itself, improved it three times, and showed with a self-test in a temporary folder that existing files are not overwritten. We read every command before we approved it and rejected none.
+
+**Checks.** `git status` showed only `src/` as new. `python src/download.py` printed 14377942 bytes and the SHA-256 `7f78e2b218ce4bb8c538bbec04fdc9a7982e8d40bff972e650df603899edd5f6` for `owid-co2-data.csv`, as the lab requires. No download was needed, and `SOURCES.txt` was not created. A real download is not tested yet (Task 5).
+
+**Commit.** `f4d5e66`, *Add a download script for the pinned OWID CO2 data that never overwrites raw files*.
+
+### Step 2a: Tests first
+
+Navigator: Hafssa.
+
+Hafssa wrote `tests/test_clean.py` without the agent, before `clean_co2.py` exists: the starter test from the lab and four tests of our own (one row per country and year for 2000 to 2024, no missing values in `population`, `co2` and `co2_per_capita`, units that fit together, checksum of the raw file). `python -m pytest` gives 4 errors (`FileNotFoundError: data/processed/co2_eu.csv`) and 1 passed (the checksum test, which reads only the raw file). Commit message: "Add tests for the cleaned EU data, written before the cleaning script."
