@@ -51,7 +51,7 @@ We wrote `AGENTS.md` ourselves (about 40 lines: Project, Setup and commands, Dat
 **What the agent got wrong or assumed.**
 - It assumed macOS or Linux (`python3 -m venv`, `.venv/bin/python`). That fits Aqsa's Mac, but not Hafssa's Windows machine, where the path is `.venv/Scripts/activate`.
 - It wrote that the repository has no source code and no entry point. This is true today, but it will be wrong as soon as `src/` exists.
-- It says not to commit generated analysis results. Our pipeline writes `data/processed/co2_eu.csv` and `figures/`; we still have to decide whether to commit them.
+- It says not to commit generated analysis results. Our pipeline writes `data/processed/co2_eu.csv` and `figures/`; we decided to commit `data/processed/co2_eu.csv` and the chart in `figures/`, as the lab lists them.
 - It spends about 20 lines on the repository layout, which the agent can see with `ls`. The draft has more than 60 lines, we asked for about 40.
 
 **A caveat about the draft.** It describes `workflow.md` and mentions Kosovo. The agent did read our own notes in the repository, so its Kosovo remark is not independent knowledge.
