@@ -98,7 +98,9 @@ Driver: Aqsa. Prompt: the prompt from the lab (Task 4, step 1), word for word.
 
 Navigator: Hafssa.
 
-Hafssa wrote `tests/test_clean.py` without the agent, before `clean_co2.py` exists: the starter test from the lab and four tests of our own (one row per country and year for 2000 to 2024, no missing values in `population`, `co2` and `co2_per_capita`, units that fit together, checksum of the raw file). `python -m pytest` gives 4 errors (`FileNotFoundError: data/processed/co2_eu.csv`) and 1 passed (the checksum test, which reads only the raw file). Commit message: "Add tests for the cleaned EU data, written before the cleaning script."
+Hafssa wrote `tests/test_clean.py` without the agent, before `clean_co2.py` exists: the starter test from the lab and four tests of our own (one row per country and year for 2000 to 2024, no missing values in `population`, `co2` and `co2_per_capita`, units that fit together, checksum of the raw file). `python -m pytest` gives 4 errors (`FileNotFoundError: data/processed/co2_eu.csv`) and 1 passed (the checksum test, which reads only the raw file). 
+
+**Commit message:** *"Add tests for the cleaned EU data, written before the cleaning script."*
 
 ### Step 2b: clean_co2.py
 
@@ -113,5 +115,21 @@ Driver: Hafssa (KI:connect, Mistral Small 4), navigator: Aqsa.
 **Checks.** The script wrote 675 rows (27 countries times 25 years). `python -m pytest` gave 5 passed. `git status` and `git diff --stat` showed only `src/clean_co2.py` and `data/processed/co2_eu.csv` as new, and nothing in `tests/` changed.
 
 **Commit.** `450203e` *Add the cleaning script for the EU CO2 data; all tests pass*
+
+### Step 3: analyse.py
+
+Driver: Aqsa (GitHub Copilot in VS Code, Copilot Fusion), navigator: Hafssa.
+
+**Prompt.** Five parts, drafted by Hafssa (with a draft from Claude, see `AI_USAGE.md`). We replaced *six lines* by *two lists of three countries* and added *Do not install packages*.
+
+**What we changed in the plan.** Countries whose emissions per person rose have a negative cut. We asked that such bars are shown below zero, instead of cutting the axis at zero.
+
+**Implementation.** The agent first ran a read-only trial script, then wrote `src/analyse.py` and checked that the chart is a valid PNG. We read every command before we approved it and rejected none.
+
+**Result.** 675 rows, 54 after the filter on 2000 and 2024. In tonnes: Luxembourg 19.95 → 10.46 (9.49 t), Finland (5.71 t), Ireland (5.56 t). In percent: Denmark 10.17 → 4.75 (53.33 %), Finland (51.87 %), Malta (48.09 %). We recomputed these from the raw file, with our own commands (see Task 5).
+
+**Chart.** All 27 countries, axis with unit and a line at zero. Lithuania, Latvia and Croatia increased their emissions per person; they appear as red bars below zero. With an axis starting at zero they would have disappeared.
+
+**Commit.** `cd8c051`, *Add the analysis: biggest CO2 cuts per person 2000-2024, in tonnes and percent, with a chart*.
 
 
