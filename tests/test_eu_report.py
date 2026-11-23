@@ -42,3 +42,9 @@ def test_missing_consumption_is_not_zero():
 def test_per_person_matches_owid(df, owid_eu):
     pp = r.per_person(r.eu_members(df))
     assert pp[1990] == pytest.approx(owid_eu.loc[1990, "co2_per_capita"], abs=0.01)
+
+def test_biggest_cuts_starts_in_the_base_year():
+    toy = pd.DataFrame({"country": ["A", "A", "A"], "year": [1990, 1991, 2024], "co2_per_capita": [10.0, 9.0, 5.0]})
+    cuts = r.biggest_cuts(toy)
+    assert cuts.loc["A", "tonnes"] == -5.0
+    assert cuts.loc["A", "percent"] == -50.0
