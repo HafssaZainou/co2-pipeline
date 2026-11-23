@@ -27,3 +27,29 @@ print(period.groupby("country")["year"].min().value_counts())
 lux = eu[(eu["country"] == "Luxembourg") & (eu["year"].isin([1990, 1991]))]
 print(lux[["year", "co2_per_capita"]])
 ```
+
+## Agent review
+
+Mistral Small 4 (KI:connect), new session, Manual permissions. Prompt: the one from the lab.
+Files read: Codebook (lines 1–50); data file only through 9 terminal commands (first lines, search for European Union (27)); eu_report.py in the protocol not able to read (a Read in src\eu_report.py failed).  |  Did it read bug-hunt.md? No  |  Numbers in its answer: None
+
+| # | Our error | Found by the agent? | Agent's evidence | Our comment |
+|---|-----------|---------------------|------------------|-------------|
+| 1 | eu_members, Czechia | Yes | The script uses Czech Republic in the MEMBERS DataFrame, but the data file uses Czechia: `("Czech Republic", 2004),  # Line 28 in eu_report.py` According to the codebook, the correct name in the dataset is Czechia. This will cause the eu_members() function to fail to merge properly, resulting in missing data for Czechia in the EU calculations. | The line that the agent gave, „Line 28“, is not correct (in the file it says line 24). It does not name any commands and no number, for example not „26 instead of 27“. Its sentence „According to the codebook …“ is not proven. We checked it: `grep -c "Czechia" data/raw/owid-co2-codebook.csv` → 0, so the codebook does not say this.|
+| 2 | eu_members, dropna | Partly | The eu_members() function drops rows with missing consumption_co2 values: `return eu.dropna(subset=["consumption_co2"])` This could silently exclude valid EU member states if their consumption data is missing for certain years, leading to incorrect totals. | The agent names the correct line and says „could silently exclude valid EU member states“. We had the actual result: The year 2024 is missing, the report ends in 2023. |
+| 3 | per_person, mean | No | Nothing found. | / |
+| 4 | chart, label (t) | Yes | The chart function uses: `ax.set_ylabel("CO2 emissions (t)")` This is misleading since the data is in million tonnes (Mt), not tonnes. The y-axis should show "Mt" not "t". | It names the issue correctly as Unit and scales (Mt instead of t), but with no evidence. |
+| 5 | biggest_cuts, > | No | Nothing found. | / |
+| 6 | chart, set_ylim | No | Nothing found. | / |
+
+*3 of 6 of our bugs were found by the agent.*
+
+Reported by the agent, but not one of our six:
+
+| Agent's point | What we checked | Result |
+|---------------|-----------------|--------|
+| Kosovo missing | `grep -ci "kosovo" data/raw/owid-co2-codebook.csv` → 0; `grep -n "Exception" data/raw/owid-co2-codebook.csv` → no line; `data/raw/owid-co2-data.csv` → 174 lines | Its quote is not in the codebook (0 hits). Kosovo is in the data (174 lines), but it is not one of the 27 member states of the EU, so it does not belong in `MEMBERS`. Not an error. |
+| European Union (27) row double-counted | `sorted(eu['country'].unique())` → 26 names | The list of countries in eu has 26 names, all of them single countries. There is no European Union (27) row in it, so nothing is counted twice. Not an error. |
+| Year range not validated | `eu.groupby('country')['year'].agg(['min','max'])` → all 1990 to 2023; `python -c "import eu_report as r; eu = r.eu_members(r.load()); print(eu.groupby('country')['year'].count().unique())"` → [34] | All 26 countries start in 1990 and end in 2023. In this data the assumption holds. All 26 countries have 34 rows (1990 to 2023, no gaps). Not an error. |
+
+*Of the agent's 6 points, only 3 match our bugs (Czechia, dropna, y-label). The other 3 are not errors in this data. The agent did not find 3 of our bugs (per_person, >, set_ylim), and it gave no numbers as evidence.*
