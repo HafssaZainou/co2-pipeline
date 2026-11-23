@@ -38,3 +38,7 @@ def test_missing_consumption_is_not_zero():
     })
     totals = r.eu_totals(tiny)
     assert pd.isna(totals.loc[2024, "consumption_co2"])
+
+def test_per_person_matches_owid(df, owid_eu):
+    pp = r.per_person(r.eu_members(df))
+    assert pp[1990] == pytest.approx(owid_eu.loc[1990, "co2_per_capita"], abs=0.01)
