@@ -1,6 +1,7 @@
 import matplotlib
 
 matplotlib.use("Agg")  # draw charts without opening a window
+import matplotlib.pyplot as plt
 
 import pandas as pd
 import pytest
@@ -48,3 +49,10 @@ def test_biggest_cuts_starts_in_the_base_year():
     cuts = r.biggest_cuts(toy)
     assert cuts.loc["A", "tonnes"] == -5.0
     assert cuts.loc["A", "percent"] == -50.0
+
+def test_chart_label_names_the_unit(tmp_path):
+    plt.close("all")
+    totals = pd.DataFrame({"co2": [3800.0, 2400.0], "consumption_co2": [4000.0, 2600.0]}, index=[1990, 2024])
+    r.chart(totals, first=1990, latest=2024, path=tmp_path / "c.png")
+    ax = plt.gcf().axes[0]
+    assert "Mt" in ax.get_ylabel()

@@ -79,7 +79,7 @@ def chart(totals, first, latest, path="eu_report.png"):
     ax = data.plot.bar(rot=0, color=["#3D6BA8", "#C25A43"])
     ax.set_ylim(2000, None)  # zoom in, so the change is easy to see
     ax.set_xlabel("")
-    ax.set_ylabel("CO2 emissions (t)")
+    ax.set_ylabel("CO2 emissions (Mt)")
     ax.set_title(f"EU-27: CO2 emissions, {first} vs. {latest}")
     plt.tight_layout()
     plt.savefig(path, dpi=150)
