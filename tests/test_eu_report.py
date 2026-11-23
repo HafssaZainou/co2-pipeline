@@ -56,3 +56,10 @@ def test_chart_label_names_the_unit(tmp_path):
     r.chart(totals, first=1990, latest=2024, path=tmp_path / "c.png")
     ax = plt.gcf().axes[0]
     assert "Mt" in ax.get_ylabel()
+
+def test_chart_y_axis_starts_at_zero(tmp_path):
+    plt.close("all")
+    totals = pd.DataFrame({"co2": [3800.0, 2400.0], "consumption_co2": [4000.0, 2600.0]}, index=[1990, 2024])
+    r.chart(totals, first=1990, latest=2024, path=tmp_path / "c.png")
+    ax = plt.gcf().axes[0]
+    assert ax.get_ylim()[0] == 0
