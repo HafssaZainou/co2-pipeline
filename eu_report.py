@@ -46,7 +46,7 @@ def eu_members(df):
 
 def eu_totals(eu):
     """Territorial and consumption-based CO2 of the EU per year, in Mt."""
-    return eu.groupby("year")[["co2", "consumption_co2"]].sum()
+    return eu.groupby("year")[["co2", "consumption_co2"]].sum(min_count=1)
 
 
 def per_person(eu):

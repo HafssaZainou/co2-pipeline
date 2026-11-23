@@ -29,3 +29,12 @@ def test_all_27_states(df):
 def test_latest_year_is_2024(df):
     eu = r.eu_members(df)
     assert eu["year"].max() == 2024 
+
+def test_missing_consumption_is_not_zero():
+    tiny = pd.DataFrame({
+        "year": [2024, 2024],
+        "co2": [1.0, 2.0],
+        "consumption_co2": [float("nan"), float("nan")],
+    })
+    totals = r.eu_totals(tiny)
+    assert pd.isna(totals.loc[2024, "consumption_co2"])
