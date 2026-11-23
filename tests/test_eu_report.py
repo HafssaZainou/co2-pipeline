@@ -26,3 +26,6 @@ def test_all_27_states(df):
     eu = r.eu_members(df)
     assert eu["country"].nunique() == 27
 
+def test_latest_year_is_2024(df):
+    eu = r.eu_members(df)
+    assert eu["year"].max() == 2024 
