@@ -21,3 +21,8 @@ def owid_eu(df):
 
 def test_report_runs():
     r.main()
+
+def test_all_27_states(df):
+    eu = r.eu_members(df)
+    assert eu["country"].nunique() == 27
+
