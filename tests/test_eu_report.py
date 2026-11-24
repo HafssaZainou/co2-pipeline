@@ -63,3 +63,7 @@ def test_chart_y_axis_starts_at_zero(tmp_path):
     r.chart(totals, first=1990, latest=2024, path=tmp_path / "c.png")
     ax = plt.gcf().axes[0]
     assert ax.get_ylim()[0] == 0
+
+def test_world_share_matches_owid(df, owid_eu):
+    share = r.world_share(df, r.eu_members (df))
+    assert share[1990] == pytest.approx(owid_eu.loc[1990, "share_global_co2"], abs=0.1)

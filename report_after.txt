@@ -5,7 +5,7 @@ CO2 emissions (territorial)
 CO2 per person
   1990: 9.2 t   2024: 5.4 t   change: -41.5 %
 Share of world emissions
-  1990: 2.5 %   2024: 1.0 %
+  1990: 17.0 %   2024: 6.3 %
 Emissions embedded in imports (consumption-based minus territorial)
   1990: 490 Mt   2024: nan Mt
 
