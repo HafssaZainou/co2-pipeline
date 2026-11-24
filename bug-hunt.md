@@ -1,6 +1,6 @@
 # Bug hunt
 
-Reviewed by Hafssa Zainou and Aqsa Shaikh, without AI (45 minutes). The agent was only allowed to explain what a line does.
+Reviewed by Hafssa Zainou and Aqsa Shaikh, without AI (45 minutes). The agent was only allowed to explain what a line does. For our other AI use, see `AI_USAGE.md`
 
 ## What we found
 
@@ -28,6 +28,13 @@ lux = eu[(eu["country"] == "Luxembourg") & (eu["year"].isin([1990, 1991]))]
 print(lux[["year", "co2_per_capita"]])
 ```
 
+### Found later, in Task 7
+
+| # | Function | Row of the checklist | What goes wrong | Evidence (command and number) |
+|---|---|---|---|---|
+| 7 | `world_share` (line 60) | Filters (aggregates excluded?) | The denominator `df.groupby("year")["co2"].sum()` adds up every row of the file, including `World`, the continents and the income groups, so the world total is far too large and the EU share far too small. | Report: 2.4 % in 1990, 1.0 % in 2023. OWID `share_global_co2` for European Union (27): 17.0 % in 1990, 6.3 % in 2024. Neither we nor the agent found it in Task 6. We noticed it only when we compared `report_after.txt` with OWID, although all 13 tests passed. |
+
+
 ## Agent review
 
 Mistral Small 4 (KI:connect), new session, Manual permissions. Prompt: the one from the lab.
@@ -41,8 +48,9 @@ Files read: Codebook (lines 1–50); data file only through 9 terminal commands 
 | 4 | chart, label (t) | Yes | The chart function uses: `ax.set_ylabel("CO2 emissions (t)")` This is misleading since the data is in million tonnes (Mt), not tonnes. The y-axis should show "Mt" not "t". | It names the issue correctly as Unit and scales (Mt instead of t), but with no evidence. |
 | 5 | biggest_cuts, > | No | Nothing found. | / |
 | 6 | chart, set_ylim | No | Nothing found. | / |
+| 7 | world_share, denominator | No | Nothing found. | We did not find it either in Task 6. |
 
-*3 of 6 of our bugs were found by the agent.*
+*3 of 7 of our bugs were found by the agent.(we count the chart's label and its axis as two erros)*
 
 Reported by the agent, but not one of our six:
 
@@ -52,8 +60,8 @@ Reported by the agent, but not one of our six:
 | European Union (27) row double-counted | `sorted(eu['country'].unique())` → 26 names | The list of countries in eu has 26 names, all of them single countries. There is no European Union (27) row in it, so nothing is counted twice. Not an error. |
 | Year range not validated | `eu.groupby('country')['year'].agg(['min','max'])` → all 1990 to 2023; `python -c "import eu_report as r; eu = r.eu_members(r.load()); print(eu.groupby('country')['year'].count().unique())"` → [34] | All 26 countries start in 1990 and end in 2023. In this data the assumption holds. All 26 countries have 34 rows (1990 to 2023, no gaps). Not an error. |
 
-*Of the agent's 6 points, only 3 match our bugs (Czechia, dropna, y-label). The other 3 are not errors in this data. The agent did not find 3 of our bugs (per_person, >, set_ylim), and it gave no numbers as evidence.*
+*Of the agent's 6 points, only 3 match our errors (Czechia, dropna, y-label). The other 3 are not errors in this data. The agent did not find 4 of our errors (per_person, `>`, set_ylim, world_share), and it gave no numbers as evidence.*
 
 ## What we learned
 
-The line "CO2 per person" changed the most: the unweighted mean (error 3) and the missing Czechia (error 1) made 1990 look like 9.9 t instead of 9.2 t, and the change since 1990 −45.7 % instead of −41.5 % (the first report ends in 2023, the second in 2024, because of error 2). The most convincing wrong number would have been the chart with the y-axis starting at 2000 (error 6): the 2023 bar looked only 24 % as high as the 1990 bar, although it was 65 %, and nobody doubts a picture. The agent was faster: it found the name Czechia, the dropped rows and the unit on the axis in one pass, without a hint. We were better at evidence and at the quiet errors: we gave a number for every error, found the three that the agent missed (unweighted mean, `>` instead of `>=`, y-axis from 2000), and checked its claims, which showed a wrong line number, a quote that is not in the codebook and three points that were no errors.
+The error in the world share changed the report the most: the EU's share of world emissions in 1990 went from 2.4 % to 17.0 %, seven times as much, because the denominator also counted `World`, the continents and the income groups. The most convincing wrong number would have been the chart with the y-axis starting at 2000 (error 6): the 2023 bar looked only 24 % as high as the 1990 bar, although it was 65 %, and nobody doubts a picture; the change per person of -45.7 % instead of -41.5 % (errors 1 to 3) was almost as convincing, because it tells the story one wants to hear. The agent was faster: it found the name Czechia, the dropped rows and the unit on the axis in one pass, without a hint. We were better at evidence and at the quiet errors: we gave a number for every error, found three that the agent missed, and checked its claims, which showed a wrong line number, a quote that is not in the codebook and three points that were no errors. But neither we nor the agent found the world-share error in Task 6, and all 13 tests were green: we found it only by comparing the final report with an independent number, OWID's own `share_global_co2`. 
